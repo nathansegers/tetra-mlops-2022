@@ -6,7 +6,6 @@ name: MLOps Azure Data Preparing and AI Training
 on:
   # Triggers the workflow on push or pull request events
   workflow_call:
-    branches: [ main, lessonsteps/** ]
     inputs:
       data_prep:
         description: 'Data preparing'
