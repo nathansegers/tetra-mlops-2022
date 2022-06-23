@@ -95,7 +95,7 @@ jobs:
   data-preparing:
     ## Note: Uncomment this if you are activating the previous job called 'dependencies'.
     # needs: [dependencies] # Wait until this job was finished.
-    if: ${{ github.event.inputs.data_prep == true }}
+    if: ${{ github.event.inputs.data_prep == 'true' }}
     # The type of runner that the job will run on
     runs-on: ubuntu-20.04
 
@@ -131,7 +131,7 @@ jobs:
     if: ${{
         always() &&
         (needs.data-preparing.result == 'success' || needs.data-preparing.result == 'skipped') &&
-        github.event.inputs.ai_training == true
+        github.event.inputs.ai_training == 'true'
       }}
     runs-on: ubuntu-latest
 
@@ -180,7 +180,7 @@ jobs:
         always() &&
         (needs.data-preparing.result == 'success' || needs.data-preparing.result == 'skipped') &&
         (needs.ai-training.result == 'success' || needs.ai-training.result == 'skipped') &&
-        github.event.inputs.api_creation == true
+        github.event.inputs.api_creation == 'true'
       }}
     runs-on: ubuntu-latest
 
@@ -221,7 +221,7 @@ jobs:
     if: ${{
         always() &&
         (needs.api-creation.result == 'success' || needs.api-creation.result == 'skipped') &&
-        github.event.inputs.local_deployment == true
+        github.event.inputs.local_deployment == 'true'
       }}
     runs-on: ubuntu-latest
 
