@@ -54,7 +54,7 @@ env:
   CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
 
   CLIENT_ID: b1d38497-cd57-4489-9b11-3610ee44757f # Change this !
-  TENANT_ID: 4ded4bb1-6bff-42b3-aed7-6a36a503bf7a # Change this !
+  TENANT_ID: b1b5b747-fa79-442d-b8ab-870c8343c3c4 # Change this !
   WORKSPACE_NAME: MLOps-Workshop # Change this !
   RESOURCE_GROUP: TETRA-Workshop-2406 # Change this !
   SUBSCRIPTION_ID: 763622cd-d9e1-46f1-84c7-635df9708641 # Change this !
