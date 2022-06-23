@@ -113,7 +113,7 @@ jobs:
       ai_training: 'false'
       api_creation: 'false'
       test: ${{ inputs.data_prep }}
-      test_2: ${{ inputs.ai_training }}
+      test_2: ${{ inputs.ai_training == true }}
       test_3: ${{ inputs.ai_training == 'true' }}
   # Add more variables if you want
 
