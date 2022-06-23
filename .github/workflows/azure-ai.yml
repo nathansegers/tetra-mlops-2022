@@ -15,7 +15,7 @@ on:
     inputs:
       data_prep:
         description: 'Data preparing'
-        type: boolean
+        type: 'boolean'
         required: true
         default: true
       ai_training:
@@ -103,8 +103,8 @@ jobs:
       DATA_FOLDER: data
       DATASET_VERSION: 'latest'
       TRAIN_TEST_SPLIT_FACTOR: 0.20
-      PROCESS_IMAGES: ${{ github.event.inputs.data_prep_skip_process }} # Make the pipeline skip processing the images
-      SPLIT_IMAGES: ${{ github.event.inputs.data_prep_skip_split }} # Make the pipeline skip splitting the images
+      PROCESS_IMAGES: ${{ inputs.data_prep_skip_process }} # Make the pipeline skip processing the images
+      SPLIT_IMAGES: ${{ inputs.data_prep_skip_split }} # Make the pipeline skip splitting the images
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -148,7 +148,7 @@ jobs:
       AML_COMPUTE_CLISTER_MAX_NODES: 4
       AML_COMPUTE_CLUSTER_SKU: STANDARD_D2_V2
 
-      TRAIN_ON_LOCAL: ${{ github.event.inputs.train_on_local }} # If you want to train on your local runner, set this to True.
+      TRAIN_ON_LOCAL: ${{ inputs.train_on_local }} # If you want to train on your local runner, set this to True.
 
       ## Training environment
       CONDA_DEPENDENCIES_PATH: conda_dependencies.yml
