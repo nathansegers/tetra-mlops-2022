@@ -1,0 +1,269 @@
+# This is a basic workflow to help you get started with Actions
+
+name: MLOps Azure Data Preparing and AI Training
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events
+  push:
+    branches: [ main, lessonsteps/** ]
+  pull_request:
+    branches: [ main, lessonsteps/** ]
+
+  workflow_dispatch:
+    branches: [ main, lessonsteps/** ]
+    inputs:
+      data_prep:
+        description: 'Data preparing'
+        type: boolean
+        required: true
+        default: "true"
+      ai_training:
+        description: 'AI Training'
+        type: boolean
+        required: true
+        default: "true"
+      api_creation:
+        description: 'API Creation'
+        type: boolean
+        required: true
+        default: "true"
+      data_prep_skip_process:
+        description: 'Check to skip the processing of the original Data images'
+        type: boolean
+        required: true
+        default: "false"
+      data_prep_skip_split:
+        description: 'Check to skip the Splitting of the Training and Testiing sets'
+        type: boolean
+        required: true
+        default: "false"
+      train_on_local:
+        description: 'Should we train the AI model on the runner? Otherwise we train on Azure cloud machine'
+        type: boolean
+        required: true
+        default: "false"
+      kubernetes_deployment:
+        description: 'Check if we should deploy the API on Kubernetes instead of Azure.'
+        type: boolean
+        required: true
+        default: "false"
+    
+
+env:
+  CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+
+  CLIENT_ID: c2f7b98e-f968-48a5-b0d9-f2e8d80edebd # Change this !
+  TENANT_ID: 4ded4bb1-6bff-42b3-aed7-6a36a503bf7a # Change this !
+  WORKSPACE_NAME: segersnathan # Change this !
+  RESOURCE_GROUP: NathanReserve # Change this !
+  SUBSCRIPTION_ID: 7c50f9c3-289b-4ae0-a075-08784b3b9042 # Change this !
+
+  ANIMALS: cats,dogs,pandas # As we have three classes, let's just defined them here. This way we can easily loop over them later.
+  TRAIN_SET_NAME: animals-training-set
+  TEST_SET_NAME: animals-testing-set
+  MODEL_NAME: animal-cnn
+
+  SCRIPT_FOLDER: scripts
+
+  RANDOM_SEED: 42 # Random values that should be same for all the steps
+
+  GIT_SHA: ${{ github.sha }} # Set the SHA to use in the code
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+
+  ## Note: This is an obsolete job that is not used in the assignment. You can use this to define 'inputs' in an automated pipeline
+
+  # # This job is just to set redirect some environment values as output values.
+  
+  # dependencies:
+  #   runs-on: ubuntu-20.04
+
+  ## Note: These are equivalent to the inputs of the Workflow_dispatch
+  ## You can refer to these variables like this: ${{ needs.dependencies.outputs.data_prep }} similar to the ${{ github.event.inputs.data_prep }}
+  #   outputs:
+  #     data_prep: 'true'
+  #     ai_training: 'false'
+  #     api_creation: 'false'
+  ## Add more variables if you want
+
+  ## Note: There should be at least one step in a pipeline job.
+  #   steps:
+  #     - run: echo 'all outputs have been set'
+
+  data-preparing:
+    ## Note: Uncomment this if you are activating the previous job called 'dependencies'.
+    # needs: [dependencies] # Wait until this job was finished.
+    if: ${{ github.event.inputs.data_prep == 'true' }}
+    # The type of runner that the job will run on
+    runs-on: ubuntu-20.04
+
+    env:
+      DATA_FOLDER: data
+      DATASET_VERSION: 'latest'
+      TRAIN_TEST_SPLIT_FACTOR: 0.20
+      PROCESS_IMAGES: ${{ github.event.inputs.data_prep_skip_process }} # Make the pipeline skip processing the images
+      SPLIT_IMAGES: ${{ github.event.inputs.data_prep_skip_split }} # Make the pipeline skip splitting the images
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: 'Set up python'
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          cache: 'pip'
+      
+      - name: 'install requirements'
+        run: pip install -r requirements.txt
+          
+      - name: 'Run data prep script'
+        id: dataprep
+        run: |
+          python steps/01_DataPreparing.py
+
+  ai-training:
+    needs: [data-preparing]
+    # This will run Always BUT only when the previous job was successful or skipped && the ai_Training flag is set to true.
+    if: ${{
+        always() &&
+        (needs.data-preparing.result == 'success' || needs.data-preparing.result == 'skipped') &&
+        github.event.inputs.ai_training == 'true'
+      }}
+    runs-on: ubuntu-latest
+
+    env:
+      INITIAL_LEARNING_RATE: 0.01
+      MAX_EPOCHS: 50
+      BATCH_SIZE: 32
+      PATIENCE: 11
+      EXPERIMENT_NAME: animal-classification
+
+      ## Compute cluster parts
+      AML_COMPUTE_CLUSTER_NAME: cpu-cluster
+      AML_COMPUTE_CLUSTER_MIN_NODES: 0
+      AML_COMPUTE_CLISTER_MAX_NODES: 4
+      AML_COMPUTE_CLUSTER_SKU: STANDARD_D2_V2
+
+      TRAIN_ON_LOCAL: ${{ github.event.inputs.train_on_local }} # If you want to train on your local runner, set this to True.
+
+      ## Training environment
+      CONDA_DEPENDENCIES_PATH: conda_dependencies.yml
+      TRAINING_ENV_NAME: animals-classification-env-training
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: 'Set up python'
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          cache: 'pip'
+
+      - name: "install requirements"
+        run: pip install -r requirements.txt
+
+      - name: 'Run data prep script'
+        id: aitraining
+        run: |
+          python steps/02_AITraining.py
+
+
+  api-creation:
+    needs: [data-preparing, ai-training]
+    # This will run Always BUT only when the previous two jobs were successful or skipped && the api_creation flag is set to true.
+    if: ${{
+        always() &&
+        (needs.data-preparing.result == 'success' || needs.data-preparing.result == 'skipped') &&
+        (needs.ai-training.result == 'success' || needs.ai-training.result == 'skipped') &&
+        github.event.inputs.api_creation == 'true'
+      }}
+    runs-on: ubuntu-latest
+
+    env:
+      DEPLOYMENT_DEPENDENCIES: deployment_environment.yml
+      DEPLOYMENT_ENV_NAME: animals-classification-env-deployment
+      SCORE_SERVICE_NAME: animals-classification-svc
+      LOCAL_MODEL_PATH: api/outputs
+      LOCAL_DEPLOYMENT: ${{ github.event.inputs.kubernetes_deployment }}
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: 'Set up python'
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          cache: 'pip'
+
+      - name: 'install requirements'
+        run: pip install -r requirements.txt
+
+      - name: 'Run deployment script'
+        id: deployment
+        run: |
+          python steps/03_Deployment.py
+
+      - name: Upload API Code for Docker
+        if: github.event.inputs.kubernetes_deployment == 'true'
+        uses: actions/upload-artifact@v2
+        with:
+          name: docker-config
+          path: api
+
+  docker-build-and-push:
+    needs: [api-creation]
+    # This will run Always BUT only when the previous two jobs were successful or skipped && the kubernetes_deployment flag is set to true.
+    if: ${{
+        always() &&
+        (needs.api-creation.result == 'success' || needs.api-creation.result == 'skipped') &&
+        github.event.inputs.kubernetes_deployment == 'true'
+      }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download docker-config artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: docker-config
+
+      - name: Gather Docker Meta Information
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          # list of Docker images to use as base name for tags
+          images: |
+            ghcr.io/nathansegers/05-azuremlops-api
+          # generate Docker tags based on the following events/attributes:
+          # The GitHub Branch
+          # The GitHub SHA
+          # More info: https://github.com/docker/build-push-action/blob/master/docs/advanced/tags-labels.md
+          tags: |
+            type=ref,event=branch
+            type=sha
+      
+      # Enter your GITHUB Token here!
+      - name: Login to GHCR
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+
+
+
+
+
+
