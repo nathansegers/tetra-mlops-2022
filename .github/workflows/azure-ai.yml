@@ -17,37 +17,37 @@ on:
         description: 'Data preparing'
         type: boolean
         required: true
-        default: "true"
+        default: true
       ai_training:
         description: 'AI Training'
         type: boolean
         required: true
-        default: "true"
+        default: true
       api_creation:
         description: 'API Creation'
         type: boolean
         required: true
-        default: "true"
+        default: true
       data_prep_skip_process:
         description: 'Check to skip the processing of the original Data images'
         type: boolean
         required: true
-        default: "false"
+        default: false
       data_prep_skip_split:
         description: 'Check to skip the Splitting of the Training and Testiing sets'
         type: boolean
         required: true
-        default: "false"
+        default: false
       train_on_local:
         description: 'Should we train the AI model on the runner? Otherwise we train on Azure cloud machine'
         type: boolean
         required: true
-        default: "false"
+        default: false
       local_deployment:
         description: 'Check if we should deploy the API locally later on.'
         type: boolean
         required: true
-        default: "false"
+        default: false
     
 
 env:
