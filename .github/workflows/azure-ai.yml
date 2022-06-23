@@ -16,58 +16,63 @@ on:
       data_prep:
         description: 'Data preparing'
         type: choice
-        default: "YES"
+        default: 'YES'
         options:
-          - "YES"
-          - "NO"
+          - 'YES'
+          - 'NO'
         required: true
       ai_training:
         description: 'AI Training'
-        type: choice
-        default: "YES"
-        options:
-          - "YES"
-          - "NO"
+        type: boolean
         required: true
+        default: true
+      # ai_training:
+      #   description: 'AI Training'
+      #   type: choice
+      #   default: 'YES'
+      #   options:
+      #     - 'YES'
+      #     - 'NO'
+      #   required: true
       api_creation:
         description: 'API Creation'
         type: choice
-        default: "YES"
+        default: 'YES'
         options:
-          - "YES"
-          - "NO"
+          - 'YES'
+          - 'NO'
         required: true
       data_prep_skip_process:
         description: 'Check to skip the processing of the original Data images'
         type: choice
-        default: "NO"
+        default: 'NO'
         options:
-          - "YES"
-          - "NO"
+          - 'YES'
+          - 'NO'
         required: true
       data_prep_skip_split:
         description: 'Check to skip the Splitting of the Training and Testiing sets'
         type: choice
-        default: "NO"
+        default: 'NO'
         options:
-          - "YES"
-          - "NO"
+          - 'YES'
+          - 'NO'
         required: true
       train_on_local:
         description: 'Should we train the AI model on the runner? Otherwise we train on Azure cloud machine'
         type: choice
-        default: "NO"
+        default: 'NO'
         options:
-          - "YES"
-          - "NO"
+          - 'YES'
+          - 'NO'
         required: true
       local_deployment:
         description: 'Check if we should deploy the API locally later on.'
         type: choice
-        default: "NO"
+        default: 'NO'
         options:
-          - "YES"
-          - "NO"
+          - 'YES'
+          - 'NO'
         required: true
     
 
@@ -96,27 +101,30 @@ jobs:
 
   ## Note: This is an obsolete job that is not used in the assignment. You can use this to define 'inputs' in an automated pipeline
 
-  # # This job is just to set redirect some environment values as output values.
+  # This job is just to set redirect some environment values as output values.
   
-  # dependencies:
-  #   runs-on: ubuntu-20.04
+  dependencies:
+    runs-on: ubuntu-20.04
 
-  ## Note: These are equivalent to the inputs of the Workflow_dispatch
-  ## You can refer to these variables like this: ${{ needs.dependencies.outputs.data_prep }} similar to the ${{ inputs.data_prep }}
-  #   outputs:
-  #     data_prep: 'true'
-  #     ai_training: 'false'
-  #     api_creation: 'false'
-  ## Add more variables if you want
+  # Note: These are equivalent to the inputs of the Workflow_dispatch
+  # You can refer to these variables like this: ${{ needs.dependencies.outputs.data_prep }} similar to the ${{ inputs.data_prep }}
+    outputs:
+      data_prep: 'true'
+      ai_training: 'false'
+      api_creation: 'false'
+      test: ${{ inputs.data_prep }}
+      test_2: ${{ inputs.ai_training }}
+      test_3: ${{ inputs.ai_training == 'true' }}
+  # Add more variables if you want
 
-  ## Note: There should be at least one step in a pipeline job.
-  #   steps:
-  #     - run: echo 'all outputs have been set'
+  # Note: There should be at least one step in a pipeline job.
+    steps:
+      - run: echo 'all outputs have been set'
 
   data-preparing:
     ## Note: Uncomment this if you are activating the previous job called 'dependencies'.
     # needs: [dependencies] # Wait until this job was finished.
-    if: ${{ inputs.data_prep == 'YES' }}
+    if: ${{ inputs.data_prep }}
     # The type of runner that the job will run on
     runs-on: ubuntu-20.04
 
@@ -185,7 +193,7 @@ jobs:
           python-version: 3.8
           cache: 'pip'
 
-      - name: "install requirements"
+      - name: 'install requirements'
         run: pip install -r requirements.txt
 
       - name: 'Run data prep script'
