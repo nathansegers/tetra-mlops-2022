@@ -125,8 +125,8 @@ jobs:
     runs-on: ubuntu-20.04
     needs: [dependencies]
     env:
-      test_1: ${{ needs.dependencies.outputs.test_3 }}
-      test_2: ${{ needs.dependencies.outputs.test }}
+      test_1: ${{ needs.dependencies.outputs.test_2 }}
+      test_2: ${{ needs.dependencies.outputs.test_3 }}
 
     steps:
       - run: echo 'All outputs have been set'
