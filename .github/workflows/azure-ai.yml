@@ -128,6 +128,9 @@ jobs:
       test_1: ${{ dependencies.outputs.test_3 }}
       test_2: ${{ dependencies.outputs.test }}
 
+    steps:
+      - run: echo 'All outputs have been set'
+
   data-preparing:
     ## Note: Uncomment this if you are activating the previous job called 'dependencies'.
     # needs: [dependencies] # Wait until this job was finished.
