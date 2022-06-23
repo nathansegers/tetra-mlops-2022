@@ -11,8 +11,8 @@ jobs:
       data_prep: true
       ai_training: true
       api_creation: true
-      process_images: true
-      split_images: true
+      process_images: false
+      split_images: false
       train_on_local: false
       local_deployment: false
     secrets: inherit
