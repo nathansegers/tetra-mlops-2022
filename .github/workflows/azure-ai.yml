@@ -43,8 +43,8 @@ on:
         type: boolean
         required: true
         default: "false"
-      kubernetes_deployment:
-        description: 'Check if we should deploy the API on Kubernetes instead of Azure.'
+      local_deployment:
+        description: 'Check if we should deploy the API locally later on.'
         type: boolean
         required: true
         default: "false"
@@ -53,11 +53,11 @@ on:
 env:
   CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
 
-  CLIENT_ID: c2f7b98e-f968-48a5-b0d9-f2e8d80edebd # Change this !
+  CLIENT_ID: b1d38497-cd57-4489-9b11-3610ee44757f # Change this !
   TENANT_ID: 4ded4bb1-6bff-42b3-aed7-6a36a503bf7a # Change this !
-  WORKSPACE_NAME: segersnathan # Change this !
-  RESOURCE_GROUP: NathanReserve # Change this !
-  SUBSCRIPTION_ID: 7c50f9c3-289b-4ae0-a075-08784b3b9042 # Change this !
+  WORKSPACE_NAME: MLOps-Workshop # Change this !
+  RESOURCE_GROUP: TETRA-Workshop-2406 # Change this !
+  SUBSCRIPTION_ID: 763622cd-d9e1-46f1-84c7-635df9708641 # Change this !
 
   ANIMALS: cats,dogs,pandas # As we have three classes, let's just defined them here. This way we can easily loop over them later.
   TRAIN_SET_NAME: animals-training-set
@@ -143,8 +143,8 @@ jobs:
       EXPERIMENT_NAME: animal-classification
 
       ## Compute cluster parts
-      AML_COMPUTE_CLUSTER_NAME: cpu-cluster
-      AML_COMPUTE_CLUSTER_MIN_NODES: 0
+      AML_COMPUTE_CLUSTER_NAME: nathan-cpu-cluster
+      AML_COMPUTE_CLUSTER_MIN_NODES: 1
       AML_COMPUTE_CLISTER_MAX_NODES: 4
       AML_COMPUTE_CLUSTER_SKU: STANDARD_D2_V2
 
@@ -189,7 +189,7 @@ jobs:
       DEPLOYMENT_ENV_NAME: animals-classification-env-deployment
       SCORE_SERVICE_NAME: animals-classification-svc
       LOCAL_MODEL_PATH: api/outputs
-      LOCAL_DEPLOYMENT: ${{ github.event.inputs.kubernetes_deployment }}
+      LOCAL_DEPLOYMENT: ${{ github.event.inputs.local_deployment }}
 
     steps:
       - uses: actions/checkout@v2
@@ -209,7 +209,7 @@ jobs:
           python steps/03_Deployment.py
 
       - name: Upload API Code for Docker
-        if: github.event.inputs.kubernetes_deployment == 'true'
+        if: github.event.inputs.local_deployment == 'true'
         uses: actions/upload-artifact@v2
         with:
           name: docker-config
@@ -217,11 +217,11 @@ jobs:
 
   docker-build-and-push:
     needs: [api-creation]
-    # This will run Always BUT only when the previous two jobs were successful or skipped && the kubernetes_deployment flag is set to true.
+    # This will run Always BUT only when the previous two jobs were successful or skipped && the local_deployment flag is set to true.
     if: ${{
         always() &&
         (needs.api-creation.result == 'success' || needs.api-creation.result == 'skipped') &&
-        github.event.inputs.kubernetes_deployment == 'true'
+        github.event.inputs.local_deployment == 'true'
       }}
     runs-on: ubuntu-latest
 
@@ -237,7 +237,7 @@ jobs:
         with:
           # list of Docker images to use as base name for tags
           images: |
-            ghcr.io/nathansegers/05-azuremlops-api
+            ghcr.io/nathansegers/tetra-workshop
           # generate Docker tags based on the following events/attributes:
           # The GitHub Branch
           # The GitHub SHA
