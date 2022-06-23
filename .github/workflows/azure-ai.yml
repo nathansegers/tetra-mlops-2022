@@ -113,8 +113,8 @@ jobs:
       ai_training: 'false'
       api_creation: 'false'
       test: ${{ inputs.data_prep }}
-      test_2: ${{ inputs.ai_training == true }}
-      test_3: ${{ inputs.ai_training == 'true' }}
+      test_2: ${{ github.events.inputs.ai_training == true }}
+      test_3: ${{ inputs.ai_training == true }}
   # Add more variables if you want
 
   # Note: There should be at least one step in a pipeline job.
@@ -134,7 +134,7 @@ jobs:
   data-preparing:
     ## Note: Uncomment this if you are activating the previous job called 'dependencies'.
     # needs: [dependencies] # Wait until this job was finished.
-    if: ${{ inputs.data_prep }}
+    if: ${{ inputs.data_prep == 'YES' }}
     # The type of runner that the job will run on
     runs-on: ubuntu-20.04
 
