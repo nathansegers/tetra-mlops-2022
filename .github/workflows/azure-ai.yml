@@ -22,15 +22,15 @@ on:
         type: boolean
         default: true
         required: true
-      data_prep_skip_process:
+      process_images:
         description: 'Check to skip the processing of the original Data images'
         type: boolean
-        default: false
+        default: true
         required: true
-      data_prep_skip_split:
+      split_images:
         description: 'Check to skip the Splitting of the Training and Testiing sets'
         type: boolean
-        default: false
+        default: true
         required: true
       train_on_local:
         description: 'Should we train the AI model on the runner? Otherwise we train on Azure cloud machine'
@@ -61,15 +61,15 @@ on:
         type: boolean
         default: true
         required: true
-      data_prep_skip_process:
+      process_images:
         description: 'Check to skip the processing of the original Data images'
         type: boolean
-        default: false
+        default: true
         required: true
-      data_prep_skip_split:
+      split_images:
         description: 'Check to skip the Splitting of the Training and Testiing sets'
         type: boolean
-        default: false
+        default: true
         required: true
       train_on_local:
         description: 'Should we train the AI model on the runner? Otherwise we train on Azure cloud machine'
@@ -106,38 +106,6 @@ env:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
 
-  ## Note: This is an obsolete job that is not used in the assignment. You can use this to define 'inputs' in an automated pipeline
-
-  # This job is just to set redirect some environment values as output values.
-  
-  dependencies:
-    runs-on: ubuntu-20.04
-
-  # Note: These are equivalent to the inputs of the Workflow_dispatch
-  # You can refer to these variables like this: ${{ needs.dependencies.outputs.data_prep }} similar to the ${{ inputs.data_prep }}
-    outputs:
-      data_prep: 'true'
-      ai_training: 'false'
-      api_creation: 'false'
-      test: ${{ inputs.data_prep }}
-      test_2: ${{ github.events.inputs.ai_training == true }}
-      test_3: ${{ inputs.ai_training == true }}
-  # Add more variables if you want
-
-  # Note: There should be at least one step in a pipeline job.
-    steps:
-      - run: echo 'all outputs have been set'
-
-  test:
-    runs-on: ubuntu-20.04
-    needs: [dependencies]
-    env:
-      test_1: ${{ needs.dependencies.outputs.test_2 }}
-      test_2: ${{ needs.dependencies.outputs.test_3 }}
-
-    steps:
-      - run: echo 'All outputs have been set'
-
   data-preparing:
     ## Note: Uncomment this if you are activating the previous job called 'dependencies'.
     # needs: [dependencies] # Wait until this job was finished.
@@ -149,8 +117,8 @@ jobs:
       DATA_FOLDER: data
       DATASET_VERSION: 'latest'
       TRAIN_TEST_SPLIT_FACTOR: 0.20
-      PROCESS_IMAGES: ${{ inputs.data_prep_skip_process }} # Make the pipeline skip processing the images
-      SPLIT_IMAGES: ${{ inputs.data_prep_skip_split }} # Make the pipeline skip splitting the images
+      PROCESS_IMAGES: ${{ inputs.process_images }} # Make the pipeline skip processing the images
+      SPLIT_IMAGES: ${{ inputs.skip_images }} # Make the pipeline skip splitting the images
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
