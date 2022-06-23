@@ -121,6 +121,13 @@ jobs:
     steps:
       - run: echo 'all outputs have been set'
 
+  test:
+    runs-on: ubuntu-20.04
+    needs: [dependencies]
+    env:
+      test_1: ${{ dependencies.outputs.test_3 }}
+      test_2: ${{ dependencies.outputs.test }}
+
   data-preparing:
     ## Note: Uncomment this if you are activating the previous job called 'dependencies'.
     # needs: [dependencies] # Wait until this job was finished.
