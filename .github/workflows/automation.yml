@@ -11,8 +11,8 @@ jobs:
       data_prep: true
       ai_training: true
       api_creation: true
-      data_prep_skip_process: false
-      data_prep_skip_split: false
+      data_prep_skip_process: true
+      data_prep_skip_split: true
       train_on_local: false
       local_deployment: false
     secrets: inherit

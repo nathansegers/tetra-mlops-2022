@@ -145,20 +145,22 @@ def trainTestSplitData(ws):
 def main():
     ws = connectWithAzure()
 
-    print(os.environ)
+    print(os.environ.get('PROCESS_IMAGES'))
+    print(os.environ.get('PROCESS_IMAGES') == 'true')
+    print(os.environ.get('PROCESS_IMAGES') == True)
 
-    # # Set these values to 'false' if you want to skip them.
-    # if os.environ.get('PROCESS_IMAGES'):
-    #     print('Processing the images')
-    #     prepareDataset(ws)
-    # else:
-    #     print('Skipping the process part')
+    # Set these values to 'false' if you want to skip them.
+    if os.environ.get('PROCESS_IMAGES') == 'true':
+        print('Processing the images')
+        prepareDataset(ws)
+    else:
+        print('Skipping the process part')
     
-    # if os.environ.get('SPLIT_IMAGES'):
-    #     print('Splitting the images')
-    #     trainTestSplitData(ws)
-    # else:
-    #     print('Skipping the split part')
+    if os.environ.get('SPLIT_IMAGES') == 'true':
+        print('Splitting the images')
+        trainTestSplitData(ws)
+    else:
+        print('Skipping the split part')
 
 if __name__ == '__main__':
     main()
