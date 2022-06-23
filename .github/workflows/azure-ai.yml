@@ -16,10 +16,10 @@ on:
       data_prep:
         description: 'Data preparing'
         type: choice
-        default: 'YES'
+        default: YES
         options:
-          - 'YES'
-          - 'NO'
+          - YES
+          - NO
         required: true
       ai_training:
         description: 'AI Training'
@@ -134,7 +134,7 @@ jobs:
   data-preparing:
     ## Note: Uncomment this if you are activating the previous job called 'dependencies'.
     # needs: [dependencies] # Wait until this job was finished.
-    if: ${{ inputs.data_prep == 'YES' }}
+    if: ${{ inputs.data_prep == YES }}
     # The type of runner that the job will run on
     runs-on: ubuntu-20.04
 
