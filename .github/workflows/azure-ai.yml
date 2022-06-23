@@ -5,74 +5,82 @@ name: MLOps Azure Data Preparing and AI Training
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events
-  push:
-    branches: [ main, lessonsteps/** ]
-  pull_request:
-    branches: [ main, lessonsteps/** ]
-
-  workflow_dispatch:
+  workflow_call:
     branches: [ main, lessonsteps/** ]
     inputs:
       data_prep:
         description: 'Data preparing'
-        type: choice
-        default: YES
-        options:
-          - YES
-          - NO
+        type: boolean
+        default: true
         required: true
       ai_training:
         description: 'AI Training'
         type: boolean
         required: true
         default: true
-      # ai_training:
-      #   description: 'AI Training'
-      #   type: choice
-      #   default: 'YES'
-      #   options:
-      #     - 'YES'
-      #     - 'NO'
-      #   required: true
       api_creation:
         description: 'API Creation'
-        type: choice
-        default: 'YES'
-        options:
-          - 'YES'
-          - 'NO'
+        type: boolean
+        default: true
         required: true
       data_prep_skip_process:
         description: 'Check to skip the processing of the original Data images'
-        type: choice
-        default: 'NO'
-        options:
-          - 'YES'
-          - 'NO'
+        type: boolean
+        default: false
         required: true
       data_prep_skip_split:
         description: 'Check to skip the Splitting of the Training and Testiing sets'
-        type: choice
-        default: 'NO'
-        options:
-          - 'YES'
-          - 'NO'
+        type: boolean
+        default: false
         required: true
       train_on_local:
         description: 'Should we train the AI model on the runner? Otherwise we train on Azure cloud machine'
-        type: choice
-        default: 'NO'
-        options:
-          - 'YES'
-          - 'NO'
+        type: boolean
+        default: false
         required: true
       local_deployment:
         description: 'Check if we should deploy the API locally later on.'
-        type: choice
-        default: 'NO'
-        options:
-          - 'YES'
-          - 'NO'
+        type: boolean
+        default: false
+        required: true
+
+  workflow_dispatch:
+    branches: [ main, lessonsteps/** ]
+    inputs:
+      data_prep:
+        description: 'Data preparing'
+        type: boolean
+        required: true
+        default: true
+      ai_training:
+        description: 'AI Training'
+        type: boolean
+        required: true
+        default: true
+      api_creation:
+        description: 'API Creation'
+        type: boolean
+        default: true
+        required: true
+      data_prep_skip_process:
+        description: 'Check to skip the processing of the original Data images'
+        type: boolean
+        default: false
+        required: true
+      data_prep_skip_split:
+        description: 'Check to skip the Splitting of the Training and Testiing sets'
+        type: boolean
+        default: false
+        required: true
+      train_on_local:
+        description: 'Should we train the AI model on the runner? Otherwise we train on Azure cloud machine'
+        type: boolean
+        default: false
+        required: true
+      local_deployment:
+        description: 'Check if we should deploy the API locally later on.'
+        type: boolean
+        default: false
         required: true
     
 
@@ -134,7 +142,7 @@ jobs:
   data-preparing:
     ## Note: Uncomment this if you are activating the previous job called 'dependencies'.
     # needs: [dependencies] # Wait until this job was finished.
-    if: ${{ inputs.data_prep == YES }}
+    if: ${{ inputs.data_prep }}
     # The type of runner that the job will run on
     runs-on: ubuntu-20.04
 
@@ -170,7 +178,7 @@ jobs:
     if: ${{
         always() &&
         (needs.data-preparing.result == 'success' || needs.data-preparing.result == 'skipped') &&
-        inputs.ai_training == 'YES'
+        inputs.ai_training
       }}
     runs-on: ubuntu-latest
 
@@ -219,7 +227,7 @@ jobs:
         always() &&
         (needs.data-preparing.result == 'success' || needs.data-preparing.result == 'skipped') &&
         (needs.ai-training.result == 'success' || needs.ai-training.result == 'skipped') &&
-        inputs.api_creation == 'YES'
+        inputs.api_creation
       }}
     runs-on: ubuntu-latest
 
@@ -260,7 +268,7 @@ jobs:
     if: ${{
         always() &&
         (needs.api-creation.result == 'success' || needs.api-creation.result == 'skipped') &&
-        inputs.local_deployment == 'YES'
+        inputs.local_deployment
       }}
     runs-on: ubuntu-latest
 
