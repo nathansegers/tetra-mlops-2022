@@ -133,6 +133,8 @@ def downloadAndRegisterModel(ws, run):
 def main():
     ws = connectWithAzure()
 
+    print(os.environ.get('TRAIN_ON_LOCAL', 'false'))
+    print(type os.environ.get('TRAIN_ON_LOCAL'))
     # We can also run on the local machine if we set the compute_target to None. We specify this in an ENV variable as TRAIN_ON_LOCAL.
     # If you don't give this parameter, we are defaulting to False, which means we will not train on local
     compute_target = None if os.environ.get('TRAIN_ON_LOCAL', 'false') == 'true' else prepareComputeCluster(ws)
