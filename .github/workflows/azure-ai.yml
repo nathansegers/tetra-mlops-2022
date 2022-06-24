@@ -151,7 +151,7 @@ jobs:
 
     env:
       INITIAL_LEARNING_RATE: 0.01
-      MAX_EPOCHS: 50
+      MAX_EPOCHS: 2
       BATCH_SIZE: 32
       PATIENCE: 11
       EXPERIMENT_NAME: animal-classification
@@ -223,7 +223,7 @@ jobs:
           python steps/03_Deployment.py
 
       - name: Upload API Code for Docker
-        if: inputs.local_deployment == 'true'
+        if: inputs.local_deployment
         uses: actions/upload-artifact@v2
         with:
           name: docker-config
