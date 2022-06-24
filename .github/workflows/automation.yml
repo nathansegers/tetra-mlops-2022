@@ -8,7 +8,7 @@ jobs:
   start:
     uses: ./.github/workflows/azure-ai.yml
     with:
-      data_prep: true
+      data_prep: false
       ai_training: true
       api_creation: true
       process_images: false
