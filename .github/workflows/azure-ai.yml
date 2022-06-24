@@ -88,7 +88,7 @@ env:
 
   CLIENT_ID: cf21afce-62c6-4ffc-8c44-305bbcd608cc # Change this !
   TENANT_ID: b1b5b747-fa79-442d-b8ab-870c8343c3c4 # Change this !
-  WORKSPACE_NAME: MLOps-Workshop # Change this !
+  WORKSPACE_NAME: MLOps-nathan-segers # Change this !
   RESOURCE_GROUP: TETRA-Workshop-2406 # Change this !
   SUBSCRIPTION_ID: 763622cd-d9e1-46f1-84c7-635df9708641 # Change this !
 
@@ -111,7 +111,7 @@ jobs:
     # needs: [dependencies] # Wait until this job was finished.
     if: ${{ inputs.data_prep }}
     # The type of runner that the job will run on
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     env:
       DATA_FOLDER: data
