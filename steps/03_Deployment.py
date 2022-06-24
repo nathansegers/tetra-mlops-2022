@@ -56,6 +56,8 @@ def downloadLatestModel(ws):
 def main():
     ws = connectWithAzure()
 
+    print(os.environ)
+
     if os.environ.get('LOCAL_DEPLOYMENT') == "true":
         print('Deploying locally.')
         model = downloadLatestModel(ws)
